@@ -1,0 +1,3 @@
+Pillow==4.3.0
+weasyprint==0.41
+xmltodict==0.11.0
