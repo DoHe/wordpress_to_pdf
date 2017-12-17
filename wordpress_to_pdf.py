@@ -5,6 +5,8 @@ import weasyprint
 import xmltodict
 from PIL import Image
 
+LOCAL_PROTOCOL = 'local://'
+
 BLACKLIST = [
     'Über uns',
     'Neuer Blog',
@@ -15,16 +17,27 @@ BLACKLIST = [
 ]
 
 
+def scale_image(img, image_size):
+    img.thumbnail((image_size, image_size), Image.ANTIALIAS)
+    image_buffer = BytesIO()
+    img.save(image_buffer, "JPEG")
+    image_buffer.seek(0)
+    return image_buffer
+
+
 def image_scaling_fetcher(url, image_size):
+    if url.startswith(LOCAL_PROTOCOL):
+        with open(url.replace(LOCAL_PROTOCOL, ''), 'rb') as img_file:
+            img = Image.open(img_file)
+            return {
+                'mime_type': 'image/jpeg',
+                'file_obj': scale_image(img, image_size)
+            }
+
     fetched = weasyprint.default_url_fetcher(url)
-    print(fetched)
     if fetched.get('mime_type').startswith('image'):
         img = Image.open(fetched['file_obj'])
-        img.thumbnail((image_size, image_size), Image.ANTIALIAS)
-        image_buffer = BytesIO()
-        img.save(image_buffer, "JPEG")
-        image_buffer.seek(0)
-        fetched['file_obj'] = image_buffer
+        fetched['file_obj'] = scale_image(img, image_size)
     return fetched
 
 
@@ -73,8 +86,6 @@ def wordpress_to_pdf(xml_path, pdf_path, headline_color, font, image_size, black
     for idx, post in enumerate(posts):
         title = post['title']
         print('{}. {}'.format(idx + 1, title))
-        # if title != "Endlose Buchten":
-        #    continue
         result += "<br>\n<h1>{}</h1>".format(title)
         content = post.get('content:encoded')
         if not content:
@@ -86,6 +97,7 @@ def wordpress_to_pdf(xml_path, pdf_path, headline_color, font, image_size, black
     result = re.sub(r'\[caption.*?]', '', result)
     result = re.sub(r'(/a)?>([\w\s(),\-"\.\?!:\']*?)\[/caption\]', r'\1><span class="caption">\2</span></br></br>',
                     result)
+    result = re.sub(r'\[wpvideo ([\w\d]*?)\]', r'<img src="local://\1.jpg"></img>', result)
     with open('blog.html', 'w') as html_file:
         html_file.write(result)
     print('Rendering...')
