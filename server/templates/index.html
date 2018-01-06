@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Main</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/furtive/2.3.0/furtive.min.css"/>
+    <script src="{{ url_for('static', filename='index.js') }}"></script>
+</head>
+<body>
+<div class="py2">
+    <h1 class="h2 txt--center">
+        Convert your wordpress blog to pdf
+    </h1>
+    <section class="measure p2" id="forms">
+        <p class="h4">
+            Upload your wordpress export here and we will generate a pretty and printable pdf for you.
+            Want to know how you get an export like this?
+            Check <a href="https://en.support.wordpress.com/export/">here</a>.
+        </p>
+        <form class="js-form my2" role="form" enctype="multipart/form-data">
+            <input name="blog" placeholder="Upload wordpress export..." type="file" size="50"
+                   accept="text/xml">
+            <button class="js-trigger btn--green" type="button">Upload</button>
+        </form>
+        <span class="txt--center">
+            <p class="js-status fnt--orange" style="font-size:xx-large; display:none"></p>
+            <p><a class="js-download" style="font-size:xx-large;display:none" href="">Download</a></p>
+        </span>
+    </section>
+</div>
+</body>
+</html>

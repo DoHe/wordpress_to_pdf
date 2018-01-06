@@ -59,7 +59,7 @@ def generate_header(headline_color, font, image_size):
             font-family: {};
         }}
         h1 {{
-            color: {}
+            color: {};
         }}
         img {{
             display: block;
@@ -73,12 +73,18 @@ def generate_header(headline_color, font, image_size):
         </style>
         </head>
         <body>
-    """.format(headline_color, font, image_size)
+    """.format(font, headline_color, image_size)
 
 
 def wordpress_to_pdf(xml_path, pdf_path, headline_color, font, image_size, blacklist):
     with open(xml_path, 'rb') as blog_file:
-        blog = xmltodict.parse(blog_file)
+        converted_buffer = buffer_to_buffer(blog_file, headline_color, font, image_size, blacklist)
+    with open(pdf_path, 'wb') as pdf_file:
+        pdf_file.write(converted_buffer.read())
+
+
+def buffer_to_buffer(blog_buffer, headline_color, font, image_size, blacklist):
+    blog = xmltodict.parse(blog_buffer)
     posts = [post for post in blog['rss']['channel']['item'] if not should_skip(post, blacklist)]
     posts.sort(key=lambda post: post['wp:post_date'])
 
@@ -101,7 +107,7 @@ def wordpress_to_pdf(xml_path, pdf_path, headline_color, font, image_size, black
     with open('blog.html', 'w') as html_file:
         html_file.write(result)
     print('Rendering...')
-    weasyprint.HTML(string=result, url_fetcher=lambda url: image_scaling_fetcher(url, image_size)).write_pdf(pdf_path)
+    return weasyprint.HTML(string=result, url_fetcher=lambda url: image_scaling_fetcher(url, image_size)).write_pdf()
 
 
 if __name__ == '__main__':
