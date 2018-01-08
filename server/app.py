@@ -36,4 +36,4 @@ def download(blog_id):
 
 @app.route("/")
 def index():
-    return render_template('index.html', var='X')
+    return render_template('index.html')

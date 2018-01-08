@@ -1,6 +1,7 @@
 Flask==0.12.2
 Pillow==5.0.0
 celery==4.1.0
+gunicorn==19.7.1
 redis==2.10.6
 weasyprint==0.42
 xmltodict==0.11.0
